@@ -8,7 +8,7 @@ This repository is for 'Flutter_CRUD' study.
 
 ![Project Structure](images/project_structure.jpg)
 
-[참고 : Youtuve : 재즐보프]
+[참고 : Youtue : 재즐보프]
 
 </span>
 
