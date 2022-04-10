@@ -43,11 +43,18 @@ class ViewPage extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Text(
-                memo.title,
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500,
+              Container(
+                height: 100,
+                child: SingleChildScrollView(
+                  //정해진 구간내에서 스크롤이 가능하게 함.
+                  // 현재 높이 100짜리로 지정 위의 heigh: 100에 의함
+                  child: Text(
+                    memo.title,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
               Text(
@@ -68,7 +75,9 @@ class ViewPage extends StatelessWidget {
                 padding: EdgeInsets.all(10),
               ),
               Expanded(
-                child: Text(memo.text),
+                child: SingleChildScrollView(
+                  child: Text(memo.text),
+                ),
               ),
             ],
           );

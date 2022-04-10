@@ -11,6 +11,8 @@ class EditPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
+        // 키보드에 가려지는 것을 방지하고자 사용
         appBar: AppBar(
           actions: <Widget>[
             IconButton(

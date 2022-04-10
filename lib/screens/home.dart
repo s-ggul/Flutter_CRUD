@@ -138,11 +138,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           memo.title,
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          //오버플로우로 인한 화면깨짐을 방지
                         ),
                         Text(
                           memo.text,
                           style: TextStyle(fontSize: 15),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                       //Widget to display the list of project
