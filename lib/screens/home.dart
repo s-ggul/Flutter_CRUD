@@ -17,36 +17,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        physics: BouncingScrollPhysics(),
-        // 섬세한 애니메이션 동작 정의 => physics
-        /*children: <Widget>[
-          Container(
-            color: Colors.redAccent,
-            height: 70,
-          ),
-          Container(
-            color: Colors.orange,
-            height: 70,
-          ),
-          Container(
-            color: Colors.yellow,
-            height: 70,
-          ),
-          이렇게 선언하면 메모마다 추가해야겠지 당연히 
-          어떻게 구현할 수 있을까? 
-          */
+      body: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Padding(
-                  padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
-                  child: Text('Memo Memo',
-                      style: TextStyle(fontSize: 36, color: Colors.blue)))
-            ],
-          ),
-          ...LoadMemo()
-          // ... 이 의미하는건 리스트가 다 돌때까지 반복적으로 loadMemo를 실행
+          Padding(
+              padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
+              child: Text('Memo Memo',
+                  style: TextStyle(fontSize: 36, color: Colors.blue))),
+          Expanded(child: memoBuilder())
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -63,19 +40,35 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  List<Widget> LoadMemo() {
-    List<Widget> memoList = [];
-    memoList.add(Container(
-      color: Colors.redAccent,
-      height: 70,
-    ));
-
-    return memoList;
-  }
-
   Future<List<Memo>> loadMemo() async {
     DBHelper sd = DBHelper();
     return await sd.memos();
   }
+
+  Widget memoBuilder() {
+    return FutureBuilder(
+      builder: (context, AsyncSnapshot snap) {
+        //snapshot 앞에는 `AsyncSnapshot` 키워드를 이용하자
+        if (snap.data!.isEmpty) {
+          return Container(child: Text("메모가 없습니다. 메모를 추가하세요"));
+        }
+        return ListView.builder(
+          itemCount: snap.data!.length,
+          //AsyncSnapshot를 통해 ! 를 사용할 수 있다.
+          itemBuilder: (context, index) {
+            Memo memo = snap.data![index];
+            return Column(
+              children: <Widget>[
+                Text(memo.title),
+                Text(memo.text),
+                Text(memo.editTime),
+                //Widget to display the list of project
+              ],
+            );
+          },
+        );
+      },
+      future: loadMemo(),
+    );
+  }
 }
-//test
