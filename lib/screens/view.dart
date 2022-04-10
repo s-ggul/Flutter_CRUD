@@ -2,24 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../database/db.dart';
 import '../database/memo.dart';
+import './home.dart';
+import './edit.dart';
 
-class ViewPage extends StatelessWidget {
+class ViewPage extends StatefulWidget {
   ViewPage({Key? key, required this.id}) : super(key: key);
 
   final String id;
-  //findMemo(id)[0]
 
   @override
+  _ViewPageState createState() => _ViewPageState();
+}
+
+class _ViewPageState extends State<ViewPage> {
+  BuildContext? _context;
+  @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[
             IconButton(
-              onPressed: () {},
+              onPressed: showAlertDialog,
               icon: const Icon(Icons.delete),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => EditPage(id: widget.id)));
+              },
               icon: const Icon(Icons.edit),
             )
           ],
@@ -34,7 +47,7 @@ class ViewPage extends StatelessWidget {
 
   LoadBuilder() {
     return FutureBuilder<List<Memo>>(
-      future: loadMemo(id),
+      future: loadMemo(widget.id),
       builder: (BuildContext context, AsyncSnapshot<List<Memo>> snapshot) {
         if (snapshot.data?.isEmpty ?? true) {
           return Container(child: Text('데이터를 불러올 수 없습니다.'));
@@ -82,6 +95,42 @@ class ViewPage extends StatelessWidget {
             ],
           );
         }
+      },
+    );
+  }
+
+  Future<void> deleteMemo(String id) async {
+    DBHelper sd = DBHelper();
+    await sd.deleteMemo(id);
+  }
+
+  void showAlertDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('삭제 경고'),
+          content: Text("정말 삭제하시겠습니까?\n삭제된 메모는 복구되지 않습니다."),
+          actions: <Widget>[
+            TextButton(
+              child: Text('삭제'),
+              onPressed: () {
+                Navigator.pop(context, "삭제");
+                setState(() {
+                  deleteMemo(widget.id);
+                });
+                Navigator.pop(_context!, "삭제");
+              },
+            ),
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.pop(context, "취소");
+              },
+            ),
+          ],
+        );
       },
     );
   }

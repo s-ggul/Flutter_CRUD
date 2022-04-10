@@ -1,89 +1,112 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_crud/database/db.dart';
 import '../database/memo.dart';
 import '../database/db.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert'; // for the utf8.encode method
 
-class EditPage extends StatelessWidget {
+class EditPage extends StatefulWidget {
+  EditPage({Key? key, required this.id}) : super(key: key);
+  final String id;
+
+  @override
+  _EditPageState createState() => _EditPageState();
+}
+
+class _EditPageState extends State<EditPage> {
+  BuildContext? _context;
+
   String title = '';
   String text = '';
+  String createTime = '';
+
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        // 키보드에 가려지는 것을 방지하고자 사용
         appBar: AppBar(
           actions: <Widget>[
             IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.delete),
-            ),
-            IconButton(
-              onPressed: saveDB,
               icon: const Icon(Icons.save),
+              onPressed: updateDB,
             )
           ],
         ),
-        body: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
+        body: Padding(padding: EdgeInsets.all(20), child: loadBuilder()));
+  }
+
+  Future<List<Memo>> loadMemo(String id) async {
+    DBHelper sd = DBHelper();
+    return await sd.findMemo(id);
+  }
+
+  loadBuilder() {
+    return FutureBuilder<List<Memo>>(
+      future: loadMemo(widget.id),
+      builder: (BuildContext context, AsyncSnapshot<List<Memo>> snapshot) {
+        if (snapshot.data == null || snapshot.data == []) {
+          return Container(child: Text("데이터를 불러올 수 없습니다."));
+        } else {
+          Memo memo = snapshot.data![0];
+
+          var tecTitle = TextEditingController();
+          //text 필드마다 하나씩 필요
+          // edit창 진입시 이전 텍스트들을 띄우는 용도로 사용된다.
+          title = memo.title;
+          tecTitle.text = title;
+
+          var tecText = TextEditingController();
+          text = memo.text;
+          tecText.text = text;
+
+          createTime = memo.createTime;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextField(
+                controller: tecTitle,
+                maxLines: 2,
                 onChanged: (String title) {
                   this.title = title;
                 },
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
                 //obscureText: true,
-                // obscureText => 비밀번호 입력창처럼 글자가 안보이게 하는 기능
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                // 줄바꿈 속성
-                // maxLines 도 지정해줘야한다. 이 경우 제한없음 (null)
                 decoration: InputDecoration(
                   //border: OutlineInputBorder(),
-                  hintText: '제목을 입력하세요.',
+                  hintText: '메모의 제목을 적어주세요.',
                 ),
               ),
               Padding(padding: EdgeInsets.all(10)),
               TextField(
+                controller: tecText,
+                maxLines: 8,
                 onChanged: (String text) {
                   this.text = text;
                 },
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
+                //obscureText: true,
                 decoration: InputDecoration(
-                  hintText: '내용을 입력하세요.',
+                  //border: OutlineInputBorder(),
+                  hintText: '메모의 내용을 적어주세요.',
                 ),
               ),
             ],
-          ),
-        ));
+          );
+        }
+      },
+    );
   }
 
-  Future<void> saveDB() async {
-    // Future 키워드 => async키워드와 함께 메소드에서사용됨
+  void updateDB() {
     DBHelper sd = DBHelper();
 
     var fido = Memo(
-      id: Str2Sha512(DateTime.now().toString()),
+      id: widget.id, // String
       title: this.title,
       text: this.text,
-      createTime: DateTime.now().toString(),
+      createTime: this.createTime,
       editTime: DateTime.now().toString(),
     );
 
-    await sd.insertMemo(fido);
-
-    print(await sd.memos());
-  }
-
-  String Str2Sha512(String text) {
-    var bytes = utf8.encode(text);
-    //data being hashed
-
-    var digest = sha512.convert(bytes);
-
-    return digest.toString();
+    sd.updateMemo(fido);
+    Navigator.pop(_context!);
   }
 }

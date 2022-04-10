@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import './edit.dart';
+import './write.dart';
 import '../database/db.dart';
 import '../database/memo.dart';
 import './view.dart';
@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
-              context, CupertinoPageRoute(builder: (context) => EditPage()));
+              context, CupertinoPageRoute(builder: (context) => WritePage()));
         },
         // 페이지 라우팅을 담당하는 부분의 코드
         // 여기서는 CupertinoPageRouter를 사용했음
