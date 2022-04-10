@@ -14,16 +14,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String deleteId = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: <Widget>[
           Padding(
-              padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
+            padding: EdgeInsets.only(left: 5, top: 40, bottom: 20),
+            child: Container(
               child: Text('Memo Memo',
-                  style: TextStyle(fontSize: 36, color: Colors.blue))),
-          Expanded(child: memoBuilder())
+                  style: TextStyle(fontSize: 36, color: Colors.blue)),
+              alignment: Alignment.centerLeft,
+            ),
+          ),
+          Expanded(child: memoBuilder(context))
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -45,25 +50,119 @@ class _MyHomePageState extends State<MyHomePage> {
     return await sd.memos();
   }
 
-  Widget memoBuilder() {
-    return FutureBuilder(
+  Future<void> deleteMemo(String id) async {
+    DBHelper sd = DBHelper();
+    await sd.deleteMemo(id);
+  }
+
+  void showAlertDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('삭제 경고'),
+          content: Text("정말 삭제하시겠습니까?\n삭제된 메모는 복구되지 않습니다."),
+          actions: <Widget>[
+            TextButton(
+              child: Text('삭제'),
+              onPressed: () {
+                Navigator.pop(context, "삭제");
+                setState(() {
+                  deleteMemo(deleteId);
+                });
+                deleteId = '';
+              },
+            ),
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                deleteId = '';
+                Navigator.pop(context, "취소");
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget memoBuilder(BuildContext parentContext) {
+    return FutureBuilder<List<Memo>>(
       builder: (context, AsyncSnapshot snap) {
         //snapshot 앞에는 `AsyncSnapshot` 키워드를 이용하자
-        if (snap.data!.isEmpty) {
-          return Container(child: Text("메모가 없습니다. 메모를 추가하세요"));
+        if (snap.data?.isEmpty ?? true) {
+          return Container(
+            alignment: Alignment.center,
+            child: Text(
+              "메모가 없습니다. 메모를 추가하세요!\n\n\n\n\n",
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.blue.shade900,
+              ),
+            ),
+          );
         }
         return ListView.builder(
-          itemCount: snap.data!.length,
+          physics: BouncingScrollPhysics(),
+          padding: EdgeInsets.all(20),
+          itemCount: snap.data?.length,
           //AsyncSnapshot를 통해 ! 를 사용할 수 있다.
           itemBuilder: (context, index) {
             Memo memo = snap.data![index];
-            return Column(
-              children: <Widget>[
-                Text(memo.title),
-                Text(memo.text),
-                Text(memo.editTime),
-                //Widget to display the list of project
-              ],
+            return InkWell(
+              onTap: () {},
+              onLongPress: () {
+                deleteId = memo.id;
+                showAlertDialog(parentContext);
+              },
+              child: Container(
+                margin: EdgeInsets.all(5),
+                padding: EdgeInsets.all(15),
+                alignment: Alignment.center,
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Text(
+                          memo.title,
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          memo.text,
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ],
+                      //Widget to display the list of project
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Text(
+                          "최종 수정 시간 : " + memo.editTime.split('.')[0],
+                          style: TextStyle(fontSize: 11),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    border: Border.all(
+                      color: Colors.teal.shade300,
+                      width: 2,
+                    ),
+                    boxShadow: [BoxShadow(color: Colors.teal, blurRadius: 3)],
+                    borderRadius: BorderRadius.circular(12)),
+              ),
             );
           },
         );
