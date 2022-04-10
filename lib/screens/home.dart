@@ -24,7 +24,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: EdgeInsets.only(left: 5, top: 40, bottom: 20),
             child: Container(
-              child: Text('Memo Memo',
+              child: Text('Nemo Memo',
                   style: TextStyle(fontSize: 36, color: Colors.blue)),
               alignment: Alignment.centerLeft,
             ),
