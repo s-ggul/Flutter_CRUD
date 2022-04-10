@@ -85,4 +85,25 @@ class DBHelper {
       whereArgs: [id],
     );
   }
+
+  //메모를 하나만 찾는 메소드
+  Future<List<Memo>> findMemo(String id) async {
+    final db = await database;
+
+    // 모든 Memo를 얻기 위해 테이블에 질의
+    final List<Map<String, dynamic>> maps =
+        await db.query('memos', where: 'id = ?', whereArgs: [id]);
+    // whereArgs 의 값은 리스트 형태로 줘야하기에 [id] 를 넘김
+
+    // List<Map<String, dynamic>를 List<Memo>으로 변환
+    return List.generate(maps.length, (i) {
+      return Memo(
+        id: maps[i]['id'],
+        title: maps[i]['title'],
+        text: maps[i]['text'],
+        createTime: maps[i]['createTime'],
+        editTime: maps[i]['editTime'],
+      );
+    });
+  }
 }
