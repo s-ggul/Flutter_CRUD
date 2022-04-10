@@ -24,7 +24,7 @@ class Memo {
     };
   }
 
-  // 각 memo 정보를 보기 쉽도록 print 문을 사용하여 toString을 구현
+  // 각 memo 정보를 보기 쉽도록 toString을 구현
   @override
   String toString() {
     return 'Memo{id: $id, title: $title, text: $text, createTime: $createTime, editTime: $editTime}';
