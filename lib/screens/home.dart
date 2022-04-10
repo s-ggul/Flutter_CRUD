@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import './edit.dart';
+import '../database/db.dart';
+import '../database/memo.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -12,14 +14,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,6 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.redAccent,
       height: 70,
     ));
+
     return memoList;
+  }
+
+  Future<List<Memo>> loadMemo() async {
+    DBHelper sd = DBHelper();
+    return await sd.memos();
   }
 }
